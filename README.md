@@ -8,7 +8,7 @@ pay-as-you-go API billing**.
 ## Install
 
 ```
-/plugin marketplace add giga-james/gigadump
+/plugin marketplace add GigaFlow-AI-Incorporated/gigadump
 /plugin install gigadump
 ```
 
