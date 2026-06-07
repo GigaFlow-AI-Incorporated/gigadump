@@ -1,7 +1,7 @@
 # My idea dump
 
 A self-organizing dump of ideas, scaffolded by
-[gigadump](https://github.com/giga-james/gigadump).
+[gigadump](https://github.com/GigaFlow-AI-Incorporated/gigadump).
 
 ## Capture an idea
 
