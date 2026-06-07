@@ -47,7 +47,7 @@ Created/scaffolded by the tool on first run. Holds the actual ideas plus the
 copied-in machinery. The GitHub Action runs **here**.
 
 ```
-<your-dump>/                          # e.g. ~/Projects/idea-dump
+<your-dump>/                          # e.g. ~/Projects/gigaideas
 ├─ .github/workflows/organize.yml
 ├─ .github/organize-prompt.md
 ├─ CLAUDE.md                          # taxonomy conventions (from template, then yours)
@@ -80,7 +80,7 @@ One user-facing command. It self-bootstraps:
 
 ```json
 {
-  "dumpRepoPath": "/Users/<you>/Projects/idea-dump",
+  "dumpRepoPath": "/Users/<you>/Projects/gigaideas",
   "defaultStatus": "seed"
 }
 ```
@@ -159,7 +159,7 @@ category:
 
 - Distribution → Claude Code plugin/marketplace.
 - Naming → tool repo = `gigadump`; personal content repo renamed (currently
-  `~/Projects/idea-dump`).
+  `~/Projects/gigaideas`).
 - Command surface → single smart `/gigadump-idea` that self-bootstraps setup.
 - Per-user state → `~/.config/gigadump/config.json`.
 - Reorg scope → new files by default; full reorg on demand.
