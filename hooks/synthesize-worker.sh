@@ -46,21 +46,16 @@ main() {
   trap 'rm -f "$_pfile"' EXIT
   {
     printf '%s\n' "You are synthesizing a Claude Code work session into a single gigadump entry."
-    printf '%s\n' "Output ONLY a markdown file (no preamble, no code fences) in this exact shape:"
+    printf '%s\n' "Output EXACTLY the following structure (no preamble, no code fences, no frontmatter):"
     printf '\n'
-    printf '%s\n' "---"
-    printf '%s\n' "title: <concise title of the session work>"
-    printf '%s\n' "created: $(today)"
-    printf '%s\n' "status: seed"
-    printf '%s\n' "tags: [<2-5 lowercase tags>]"
-    printf '%s\n' "category:"
-    printf '%s\n' "---"
+    printf '%s\n' "TITLE: <concise title of the session work>"
+    printf '%s\n' "TAGS: <2-5 lowercase comma-separated tags>"
     printf '\n'
     printf '%s\n' "## Work done"
     printf '%s\n' "<what changed: files touched, key decisions, outcome. Concrete and brief.>"
     printf '\n'
     printf '%s\n' "## Ideas / follow-ups"
-    printf '%s\n' "<open questions, TODOs, ideas that surfaced. Leave empty if none - do not invent.>"
+    printf '%s\n' "<open questions, TODOs, ideas that surfaced. Leave empty if none; do not invent.>"
     printf '\n'
     printf '%s\n' "Session transcript (assistant messages + tool markers) follows:"
     printf '\n'
@@ -70,14 +65,28 @@ main() {
   local out; out="$(claude -p < "$_pfile" 2>>"$GIGADUMP_LOG")" || { log "claude failed"; exit 0; }
   [[ -n "$out" ]] || { log "claude empty output"; exit 0; }
 
-  local title slug file
-  title="$(printf '%s\n' "$out" | sed -n 's/^title:[[:space:]]*//p' | head -1)"
+  local title tags body slug file
+  title="$(printf '%s\n' "$out" | sed -n 's/^TITLE:[[:space:]]*//p' | head -1)"
   [[ -n "$title" ]] || title="session $(today)"
+  tags="$(printf '%s\n' "$out" | sed -n 's/^TAGS:[[:space:]]*//p' | head -1)"
+  body="$(printf '%s\n' "$out" | awk 'f{print} /^## /{if(!f){f=1;print}}')"
+  [[ -n "$body" ]] || body="$(printf '## Work done\n')"
+
   slug="$(slugify "$title")"; [[ -n "$slug" ]] || slug="session"
   file="$DUMP/$(today)-$slug.md"
   [[ -e "$file" ]] && file="$DUMP/$(today)-$slug-$$.md"
 
-  printf '%s\n' "$out" > "$file" || { log "write failed"; exit 0; }
+  {
+    printf '%s\n' "---"
+    printf '%s\n' "title: $title"
+    printf '%s\n' "created: $(today)"
+    printf '%s\n' "status: seed"
+    printf '%s\n' "tags: [$tags]"
+    printf '%s\n' "category:"
+    printf '%s\n' "---"
+    printf '\n'
+    printf '%s\n' "$body"
+  } > "$file" || { log "write failed"; exit 0; }
   log "wrote $file"
 
   git -C "$DUMP" add -A 2>>"$GIGADUMP_LOG" || { log "git add failed"; exit 0; }
