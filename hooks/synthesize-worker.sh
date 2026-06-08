@@ -43,6 +43,7 @@ main() {
   [[ -n "$content" ]] || { log "empty transcript extract"; exit 0; }
 
   local _pfile; _pfile="$(mktemp)"
+  trap 'rm -f "$_pfile"' EXIT
   {
     printf '%s\n' "You are synthesizing a Claude Code work session into a single gigadump entry."
     printf '%s\n' "Output ONLY a markdown file (no preamble, no code fences) in this exact shape:"
@@ -66,7 +67,7 @@ main() {
     printf '%s\n' "$content"
   } > "$_pfile"
 
-  local out; out="$(claude -p < "$_pfile" 2>>"$GIGADUMP_LOG")" && rm -f "$_pfile" || { rm -f "$_pfile"; log "claude failed"; exit 0; }
+  local out; out="$(claude -p < "$_pfile" 2>>"$GIGADUMP_LOG")" || { log "claude failed"; exit 0; }
   [[ -n "$out" ]] || { log "claude empty output"; exit 0; }
 
   local title slug file
