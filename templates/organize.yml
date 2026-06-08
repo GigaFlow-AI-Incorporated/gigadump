@@ -75,6 +75,9 @@ jobs:
           # Use the workflow's own token for GitHub API calls so we don't need
           # the Claude Code GitHub App installed on the repo.
           github_token: ${{ github.token }}
+          # A push re-dispatches this workflow as the github-actions bot, so the
+          # action must allow bot-initiated runs (it blocks them by default).
+          allowed_bots: "*"
           prompt: |
             Read .github/organize-prompt.md and follow it exactly.
             Mode: ${{ inputs.mode }}
