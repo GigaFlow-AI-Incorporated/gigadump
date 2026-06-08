@@ -41,7 +41,38 @@ is_substantial() {
   [[ "${edits:-0}" -gt 0 || "${commits:-0}" -gt 0 || "${turns:-0}" -ge "$GIGADUMP_MIN_TURNS" ]]
 }
 
+# Decide whether to synthesize.
+# Prints "skip <reason>" or "proceed <dump> <transcript>".
+decide() {
+  local input="$1" dump transcript
+  if is_reentrant; then printf 'skip reentrant'; return; fi
+  dump="$(resolve_dump)" || { printf 'skip not-opted-in'; return; }
+  transcript="$(printf '%s' "$input" | jq -r '.transcript_path // empty' 2>/dev/null)"
+  [[ -n "$transcript" ]] || { printf 'skip no-transcript'; return; }
+  is_substantial "$transcript" || { printf 'skip trivial'; return; }
+  printf 'proceed %s %s' "$dump" "$transcript"
+}
+
+main() {
+  local input; input="$(cat)"
+  local decision; decision="$(decide "$input")"
+  # shellcheck disable=SC2086
+  set -- $decision
+  if [[ "${1:-}" != "proceed" ]]; then
+    log "skip: ${2:-}"
+    exit 0
+  fi
+  local dump="$2" transcript="$3"
+  log "proceed: $transcript -> $dump"
+  # Detach so SessionEnd does not block the terminal. nohup is portable
+  # (macOS lacks setsid). The child is reparented and survives hook exit.
+  GIGADUMP_HOOK_ACTIVE=1 nohup "$SCRIPT_DIR/synthesize-worker.sh" "$dump" "$transcript" \
+    </dev/null >>"$GIGADUMP_LOG" 2>&1 &
+  disown 2>/dev/null || true
+  exit 0
+}
+
 # Run main only when executed directly, not when sourced by tests.
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  : # main added in Task 4
+  main
 fi

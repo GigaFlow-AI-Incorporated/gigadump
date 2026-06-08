@@ -44,4 +44,28 @@ FX="$HERE/fixtures"
 ( is_substantial "$FX/turns.jsonl" );   assert_eq "0" "$?" "session with >=6 turns is substantial"
 ( is_substantial "$FX/missing.jsonl" ); assert_eq "1" "$?" "missing transcript is not substantial"
 
+# --- decide ---
+export GIGADUMP_CONFIG="$TMP/config.json"
+write_cfg "{\"autoSynthesize\": true, \"dumpRepoPath\": \"$TMP/dump\"}"
+
+mk_input() { printf '{"transcript_path":"%s","hook_event_name":"SessionEnd"}' "$1"; }
+
+# Reentrant -> skip.
+out="$(GIGADUMP_HOOK_ACTIVE=1 decide "$(mk_input "$FX/edits.jsonl")")"
+assert_eq "skip reentrant" "$out" "decide skips when reentrant"
+
+# Not opted in -> skip.
+write_cfg "{\"autoSynthesize\": false, \"dumpRepoPath\": \"$TMP/dump\"}"
+out="$(decide "$(mk_input "$FX/edits.jsonl")")"
+assert_eq "skip not-opted-in" "$out" "decide skips when not opted in"
+
+# Opted in + trivial -> skip.
+write_cfg "{\"autoSynthesize\": true, \"dumpRepoPath\": \"$TMP/dump\"}"
+out="$(decide "$(mk_input "$FX/trivial.jsonl")")"
+assert_eq "skip trivial" "$out" "decide skips trivial session"
+
+# Opted in + substantial -> proceed with dump + transcript.
+out="$(decide "$(mk_input "$FX/edits.jsonl")")"
+assert_eq "proceed $TMP/dump $FX/edits.jsonl" "$out" "decide proceeds on substantial session"
+
 finish
