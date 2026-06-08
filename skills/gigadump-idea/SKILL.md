@@ -84,14 +84,25 @@ b. Fill the template: set `title`, `created` (today's date), `status` (use
    signals otherwise), `tags`, `category`. Fill the sections from the interview;
    leave any the user didn't address empty.
 
-c. Choose a category folder per `CLAUDE.md` (prefer an existing folder; create a
+c. **Add a Mermaid diagram only if complexity necessitates it.** If the idea has
+   structure that's genuinely clearer as a picture than prose — a multi-step flow,
+   a system with several interacting components, a state machine, a decision tree,
+   a data model with relationships, or a sequence between actors — add a
+   `## Diagram` section with a fenced ```mermaid block (`flowchart`,
+   `sequenceDiagram`, `stateDiagram-v2`, `erDiagram`, etc.) that captures it. Keep
+   it faithful to what the user actually said — never invent components just to
+   justify a diagram. For seeds, one-liners, or anything a sentence already
+   conveys, skip it entirely (don't leave an empty `## Diagram` heading). When in
+   doubt, leave it out.
+
+d. Choose a category folder per `CLAUDE.md` (prefer an existing folder; create a
    new kebab-case one only if nothing fits). Derive a kebab-case filename from
    the title. Write to `$DUMP/<category>/<filename>.md`.
 
-d. In `## Related`, add `[[links]]` to any clearly-related existing ideas you
+e. In `## Related`, add `[[links]]` to any clearly-related existing ideas you
    find by skimming sibling files.
 
-e. Regenerate `$DUMP/INDEX.md` per the format in `CLAUDE.md`.
+f. Regenerate `$DUMP/INDEX.md` per the format in `CLAUDE.md`.
 
 ### 5. Hand off — offer to commit + push
 

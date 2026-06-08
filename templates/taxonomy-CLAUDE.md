@@ -29,6 +29,18 @@ EXCEPT these, which are never moved or treated as ideas:
 - Keep depth sane: at most 3 levels (`category/subcategory/idea.md`). Subdivide
   only when a folder grows past ~8 files.
 
+## Diagrams
+
+- Ideas may include a `## Diagram` section containing a fenced ```mermaid block
+  when — and only when — the idea's complexity warrants it (a multi-step flow,
+  several interacting components, a state machine, a decision tree, a data model
+  with relationships, or a sequence between actors). GitHub renders Mermaid
+  inline, so these show up as real diagrams.
+- This is added by `/gigadump-idea` at capture time, never forced. Seeds,
+  one-liners, and anything a sentence already conveys get no diagram. The CI
+  organizer never adds, edits, or removes diagrams — it only moves files and
+  rebuilds `INDEX.md`.
+
 ## File naming
 
 - Idea filenames are kebab-case derived from the title, `.md` extension
