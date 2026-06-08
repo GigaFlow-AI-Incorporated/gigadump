@@ -14,8 +14,11 @@ One command. Self-bootstraps a dump repo on first run, then captures ideas.
 Read `~/.config/gigadump/config.json`. It looks like:
 
 ```json
-{ "dumpRepoPath": "/abs/path/to/dump", "defaultStatus": "seed" }
+{ "dumpRepoPath": "/abs/path/to/dump", "defaultStatus": "seed", "autoMerge": false }
 ```
+
+`autoMerge` (default `false`) controls step 5: when `true`, a written idea is
+committed and pushed automatically (with a heads-up) instead of prompting.
 
 - If it exists AND `dumpRepoPath` is a directory that is a git repo → use it as
   `DUMP`. Skip to step 3.
@@ -53,14 +56,18 @@ c. Find the plugin's bundled templates. They live at `"$CLAUDE_PLUGIN_ROOT/templ
    _Auto-maintained by gigadump. Do not edit by hand._
    ```
 
-d. Ask one yes/no question: "Auto-synthesize each Claude Code session into this
-   dump? When on, at the end of every substantial session a hook summarizes the
-   work + ideas and pushes an entry here for the organizer to file. (y/n)"
+d. Ask two yes/no questions (one at a time):
+   1. "Auto-synthesize each Claude Code session into this dump? When on, at the
+      end of every substantial session a hook summarizes the work + ideas and
+      pushes an entry here for the organizer to file. (y/n)"
+   2. "Auto-merge captured ideas? When on, after each idea is written it's
+      committed and pushed automatically (you'll get a heads-up, not a prompt).
+      (y/n)"
    Then write `~/.config/gigadump/config.json` (create `~/.config/gigadump/` if
-   needed) with `dumpRepoPath` = `DUMP`, `defaultStatus` = `seed`, and
-   `autoSynthesize` = the boolean answer (default `false` if they decline or are
-   unsure). On a reused repo, preserve any existing `autoSynthesize` value rather
-   than overwriting it.
+   needed) with `dumpRepoPath` = `DUMP`, `defaultStatus` = `seed`,
+   `autoSynthesize` = answer 1, and `autoMerge` = answer 2 (each defaulting to
+   `false` if they decline or are unsure). On a reused repo, preserve any existing
+   `autoSynthesize` / `autoMerge` values rather than overwriting them.
 
 e. Print the one-time GitHub setup checklist (from `$DUMP/README.md`) **only if
    the repo still needs it** — i.e. a new repo, or a reused repo with no git
@@ -110,30 +117,41 @@ e. In `## Related`, add `[[links]]` to any clearly-related existing ideas you
 
 f. Regenerate `$DUMP/INDEX.md` per the format in `CLAUDE.md`.
 
-### 5. Hand off — offer to commit + push
+### 5. Hand off — commit + push
 
-Tell the user the path written. Then:
+Tell the user the path written. The commit + push command is:
 
-- If `$DUMP` has a git remote → **offer to commit and push it for them** (the
-  organizer runs on push to the default branch). Ask something like: "Want me to
-  commit and push this so the organizer files it? (y/n)".
-  - If they say yes → run it:
-    ```
-    git -C <DUMP> add -A && git -C <DUMP> commit -m "idea: <title>" && git -C <DUMP> push
-    ```
-    Then confirm it pushed and that the organize workflow will run.
-  - If they say no → leave it staged for them and print the same command so they
-    can run it later.
-- If there is **no remote yet** (a freshly-created repo) → don't offer to push.
-  Tell them to finish the one-time setup first (create the GitHub repo, add the
-  remote) per the checklist from step 2e. You may still offer to `git add` +
-  `commit` locally, but never suggest a `push` that will fail.
+```
+git -C <DUMP> add -A && git -C <DUMP> commit -m "idea: <title>" && git -C <DUMP> push
+```
+
+Then branch on `autoMerge` from config and whether `$DUMP` has a git remote:
+
+- **`autoMerge` is `true` AND `$DUMP` has a remote** → don't prompt. Announce one
+  line — "Auto-merging this idea (you enabled `autoMerge` — say so to skip)" —
+  then run the command and confirm it pushed and that the organize workflow will
+  run. (If the user says to skip in response, leave it staged instead.)
+
+- **`autoMerge` is not set / `false` AND `$DUMP` has a remote** → **offer**: "Want
+  me to commit and push this so the organizer files it? (y/n)".
+  - If **yes** → run the command and confirm it pushed. Then, only if `autoMerge`
+    isn't already `true`, ask once: "Make this automatic for future ideas? (y/n)"
+    — if yes, set `autoMerge` to `true` in `~/.config/gigadump/config.json`
+    (preserving the other keys).
+  - If **no** → leave it staged and print the command so they can run it later.
+    (Don't ask about making it permanent.)
+
+- **No remote yet** (a freshly-created repo) → ignore `autoMerge`; never suggest a
+  `push` that will fail. Tell them to finish the one-time setup first (create the
+  GitHub repo, add the remote) per the checklist from step 2e. You may still offer
+  to `git add` + `commit` locally.
 
 ## Constraints
 
 - NEVER invent idea content the user didn't express. Empty sections are fine.
-- NEVER commit or push without first offering and getting a yes — the commit +
-  push in step 5 is opt-in, not automatic.
+- NEVER commit or push unless either the user said yes to the step-5 offer, OR
+  `autoMerge` is `true` in config (which is the user's standing yes — still
+  announce before doing it).
 - ALWAYS file the idea into a folder (never leave it in root), so the CI
   organizer no-ops on the resulting push.
 - If `dumpRepoPath` in config points to a missing directory, re-run Bootstrap.
