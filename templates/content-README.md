@@ -37,6 +37,13 @@ then files it like any other dump. Trivial sessions are skipped.
 Synthesis runs in the background on your Claude subscription via the `claude`
 CLI; it never blocks or delays your session.
 
+## Update notifications
+
+gigadump checks (at most once a day) whether a newer version has been published
+and, if you're behind, prints a one-line notice at session start with the update
+command. To silence it, set `"updateNotifications": false` in
+`~/.config/gigadump/config.json`.
+
 ## One-time setup
 
 1. Create this repo on GitHub and push.
