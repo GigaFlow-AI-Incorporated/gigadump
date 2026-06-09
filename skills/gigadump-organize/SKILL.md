@@ -61,9 +61,10 @@ d. For each idea you file, skim siblings and add `[[links]]` to clearly-related
 
 ### 4. Rebuild the index
 
-Regenerate `$DUMP/INDEX.md` per the format in `CLAUDE.md` (group by top-level
-category alphabetically; ideas alphabetical within each; one-line summary from
-each idea's `## The idea` section or first meaningful line).
+Regenerate `$DUMP/INDEX.md` per the format in `CLAUDE.md`: a two-part index —
+an "At a glance" ASCII tree of folders (with recursive idea counts), then a
+recursive "Full index" of clickable idea links with a synthesized one-line
+description on every folder and idea.
 
 ### 5. Hand off
 
