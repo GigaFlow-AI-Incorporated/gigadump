@@ -50,21 +50,67 @@ EXCEPT these, which are never moved or treated as ideas:
 
 ## INDEX.md format
 
-Regenerate `INDEX.md` after any filing change. Format:
+Regenerate `INDEX.md` after any filing change. It is a **two-part** index: a
+compact birds-eye tree for orientation, then a recursive, fully clickable list.
+Both reflect the real folder tree at whatever depth it goes.
 
-```
+````
 # Index
 
 _Auto-maintained by gigadump. Do not edit by hand._
 
-## <Category Title>
+## At a glance
 
-- [<Idea title>](relative/path/to/idea.md) — <one-line summary>
+```
+developer-tools/ (4)
+├─ cli/ (1)
+└─ ide-plugins/ (2)
+infra/ (3)
+product-ideas/ (5)
+└─ marketplaces/ (2)
 ```
 
-Group by top-level category (alphabetical). Within a category, list ideas
-alphabetically by title. Derive the one-line summary from the idea's
-`## The idea` section (or the file's first meaningful line for raw dumps).
+## Full index
+
+### developer-tools — tooling for building software
+
+- **cli/** — command-line tools
+  - [CLI scaffolder](developer-tools/cli/cli-scaffolder.md) — generate project boilerplate
+- **ide-plugins/** — editor integrations
+  - [Auto-organizing dump](developer-tools/ide-plugins/auto-organizing-dump.md) — one-command idea capture
+  - [Inline diff lens](developer-tools/ide-plugins/inline-diff-lens.md) — diffs in hover cards
+- [Repo-wide TODO scanner](developer-tools/todo-scanner.md) — surface stale TODOs
+
+### infra — deployment & ops notes
+
+- ...
+````
+
+### At a glance
+
+- A single fenced code block containing an ASCII tree of **folders only** —
+  every category and subcategory, recursively. No leaf idea files here; that is
+  what keeps it scannable once the dump is large.
+- Annotate each folder with a **recursive idea count** in parentheses: the total
+  number of idea files at or below that folder.
+- Use `├─`, `└─`, and `│  ` box-drawing connectors for nesting. Top-level
+  categories sit flush-left; each level indents under its parent.
+- Order every level alphabetically. (Links don't render inside a code block —
+  this section is deliberately for orientation, not navigation.)
+
+### Full index
+
+- One `###` heading per top-level category, followed by a recursive bullet list
+  of its contents. Continue nesting bullets for any depth of subfolder.
+- Each **folder** (category or subcategory) carries a short one-line description
+  after an em-dash, **synthesized from the ideas inside it** (regenerated each
+  pass — nothing is stored on disk). Top-level categories put it on the `###`
+  heading line; subfolders are a **bold `folder/`** bullet with the description.
+- Each **idea** is a clickable bullet: `[<Idea title>](relative/path) —
+  <one-line summary>`. Derive the summary from the idea's `## The idea` section
+  (or the file's first meaningful line for raw dumps).
+- Ordering within any folder: **subfolders first (alphabetical), then loose
+  ideas (alphabetical)**.
 
 ## Hard rules
 
